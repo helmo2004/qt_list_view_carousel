@@ -4,13 +4,23 @@ import QtQuick.Controls 1.0
 ApplicationWindow {
     id: window
     visible: true;
-    width: 1300;
+    width: 1600;
     height: 400;
 
     ListView {
         id: listView
         anchors.fill: parent;
         orientation: ListView.Horizontal;
+
+        Keys.onPressed: {
+            var index = event.key - Qt.Key_0
+            if (index >= 0 && index < listView.count) {
+                listView.currentIndex = index;
+                event.accepted = true;
+            }
+        }
+
+        focus: true
 
         // This highlight is always in the middle
         highlightRangeMode : ListView.StrictlyEnforceRange
