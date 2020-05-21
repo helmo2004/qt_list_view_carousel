@@ -7,6 +7,8 @@ ApplicationWindow {
     width: 1600;
     height: 400;
 
+    title: "Selected Item: " + listView.currentIndex + "; currentIndexFloat: " + listView.currentIndexFloat
+
     ListView {
         id: listView
         anchors.fill: parent;
@@ -24,40 +26,43 @@ ApplicationWindow {
 
         // This highlight is always in the middle
         highlightRangeMode : ListView.StrictlyEnforceRange
-        preferredHighlightBegin : (parent.width - 400) / 2
-        preferredHighlightEnd : preferredHighlightBegin + 400
+        preferredHighlightBegin : (parent.width - itemWidth) / 2
+        preferredHighlightEnd : preferredHighlightBegin + itemWidth
         highlightMoveDuration : 200
+
+        property int itemWidth: 400
+        property int itemHeigth: 400
+        property real currentIndexFloat: (listView.contentX + preferredHighlightBegin) / itemWidth
 
         // Flickable Config
         boundsBehavior: Flickable.StopAtBounds
 
         delegate:
             Item {
-                width: 400;
-                height: 400;
+                width: listView.itemWidth;
+                height: listView.itemHeigth;
                 Image {
-                    id: name
                     source: "cup.svg"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    height: listView.currentIndex === index ? parent.height : parent.height * 0.85;
-                    Behavior on height { NumberAnimation { duration: 200 }}
-                    width: listView.currentIndex === index ? parent.width : parent.width * 0.85;
-                    Behavior on width { NumberAnimation { duration: 200 }}
-                    anchors.bottomMargin: listView.currentIndex === index ? 0 : 10;
-                    Behavior on anchors.bottomMargin { NumberAnimation { duration: 200 }}
-                    MouseArea {
-                      z: 1
-                      hoverEnabled: false
-                      anchors.fill: parent
-                      onClicked: listView.currentIndex = index
-                    }
-            }
-        }
 
-        onCurrentItemChanged : {
-            window.title = "Selected Item: " + currentIndex
-        }
+                    // Calculate Transformation
+                    property real realtivePositionFloat: listView.currentIndexFloat - index
+                    property real saturatedFocusOffset: Math.max(-1, Math.min(1, realtivePositionFloat))
+                    property real scaleFactor: 1 - (0.3 * Math.abs(saturatedFocusOffset))
+                    property real xOffset: -(saturatedFocusOffset * 80);
+
+                    // apply Transformation
+                    anchors.horizontalCenterOffset: xOffset
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height * scaleFactor;
+                    width: parent.width * scaleFactor;
+                }
+                MouseArea {
+                  z: 1
+                  hoverEnabled: false
+                  anchors.fill: parent
+                  onClicked: listView.currentIndex = index
+                }
+            }
 
         model: ListModel {
             ListElement {}
