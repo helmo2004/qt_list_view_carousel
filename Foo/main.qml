@@ -60,7 +60,17 @@ ApplicationWindow {
                   z: 1
                   hoverEnabled: false
                   anchors.fill: parent
-                  onClicked: listView.currentIndex = index
+                  onClicked: {
+                      if (index > listView.currentIndex)
+                      {
+                          listView.incrementCurrentIndex()
+                      }
+                      else if (index < listView.currentIndex)
+                      {
+                          listView.decrementCurrentIndex()
+                      }
+                  }
+
                 }
             }
 
